@@ -1,0 +1,58 @@
+/* ==========================================================================
+   display.css
+   Layout and components specific to the Public Display page (TV/projector).
+   Built out in Chunk 5. Only structural/reset rules go here for now.
+
+   Design note carried into Chunk 5: the ticket number is the signature
+   element of this whole app — full-bleed, tabular-mono digits, with a
+   subtle "ticket stub" motif (perforated edge / underline tick) rather
+   than a generic dashboard number. Everything else on this screen stays
+   quiet so that element reads instantly from across a room.
+   ========================================================================== */
+
+html, body {
+  height: 100%;
+  overflow: hidden; /* this page never scrolls — it's a kiosk display */
+}
+
+.display-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+}
+
+#clock {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+#now-serving {
+  text-align: center;
+  padding: var(--space-5);
+}
+
+.now-serving-label {
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  color: var(--color-ink-muted);
+}
+
+.ticket-number {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--scale-ticket);
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+}
+
+#last-called {
+  padding: var(--space-4) var(--space-5);
+}
+
+#scrolling-footer {
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--color-border);
+}
