@@ -1,10 +1,12 @@
 /* ==========================================================================
-   control-panel.css
-   Layout and components specific to the Control Panel page.
-   Built out in Chunk 4. Only structural/reset rules go here for now —
-   real component styling (form, buttons, history rows, settings form)
-   arrives with the Chunk 4 build so it can be designed against real markup.
-   Everything here should reference tokens from base.css, not new hex values.
+   control-panel.css — CHUNK 4
+
+   Design note: the ticket number input uses the same tabular-mono,
+   tight-letter-spacing treatment as the huge number on the Public
+   Display (see display.css). It's the one deliberate visual echo
+   between the two screens — the operator's input rhymes with what the
+   audience sees a second later. Everything else here stays quiet:
+   plain cards, one accent color, no competing signature elements.
    ========================================================================== */
 
 .app-header {
@@ -15,24 +17,361 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.app-header h1 {
+  font-size: var(--scale-h1);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
 .connection-status {
   font-family: var(--font-mono);
   font-size: var(--scale-caption);
   color: var(--color-ink-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.connection-status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-ink-muted);
+  transition: background var(--motion-base);
+}
+
+.connection-status.is-connected::before {
+  background: var(--color-success);
+}
+
+.connection-status.is-disconnected::before {
+  background: var(--color-danger);
 }
 
 #control-panel-main {
   display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
   gap: var(--space-4);
-  padding: var(--space-4) var(--space-5);
-  max-width: 960px;
+  padding: var(--space-4) var(--space-5) var(--space-6);
+  max-width: 1100px;
   margin: 0 auto;
+  align-items: start;
 }
 
-.placeholder-note {
-  padding: var(--space-5);
+.call-card {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  padding: var(--space-4);
+}
+
+.history-card {
+  grid-column: 2;
+  grid-row: 1;
+  padding: var(--space-4);
+}
+
+.settings-card {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+@media (max-width: 760px) {
+  #control-panel-main {
+    grid-template-columns: 1fr;
+  }
+  .call-card,
+  .history-card,
+  .settings-card {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
+/* ---- Now Showing readout ---- */
+.now-showing {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.now-showing-label {
+  font-size: var(--scale-caption);
   color: var(--color-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.now-showing-value {
   font-family: var(--font-mono);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent);
+}
+
+/* ---- Form fields ---- */
+.field {
+  margin-bottom: var(--space-4);
+}
+
+.field label {
+  display: block;
+  font-size: var(--scale-caption);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+  color: var(--color-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.field-optional {
+  text-transform: none;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+.field input[type="text"],
+.field input[type="number"],
+.field select,
+.field textarea {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  transition: border-color var(--motion-fast);
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--color-accent);
+}
+
+.ticket-input {
+  font-family: var(--font-mono) !important;
+  font-size: 2rem !important;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: var(--space-3) !important;
+  border: none !important;
+  border-bottom: 3px dashed var(--color-border) !important;
+  border-radius: 0 !important;
+  background: var(--color-surface) !important;
+}
+
+.ticket-input:focus {
+  border-bottom-color: var(--color-accent) !important;
+  border-bottom-style: solid !important;
+}
+
+.field-hint {
+  margin-top: var(--space-2);
+  font-size: var(--scale-caption);
+  color: var(--color-warning);
+}
+
+.readout {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--color-ink);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* ---- Buttons ---- */
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.btn {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-control);
+  border: 1px solid transparent;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: transform var(--motion-fast), box-shadow var(--motion-fast), background var(--motion-fast);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  flex: 1 1 auto;
+  font-size: 1.125rem;
+  padding: var(--space-3) var(--space-5);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 14px rgba(26, 86, 219, 0.28);
+}
+
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border-color: var(--color-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-border);
+}
+
+.btn-danger {
+  background: var(--color-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.btn-danger:hover {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.btn-text {
+  background: none;
+  color: var(--color-accent);
+  padding: var(--space-2) var(--space-3);
+  font-weight: 500;
+}
+
+.btn-text:hover {
+  text-decoration: underline;
+}
+
+/* ---- History list ---- */
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.history-item {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-bg);
+  text-align: left;
+  transition: background var(--motion-fast), border-color var(--motion-fast);
+}
+
+.history-item:hover {
+  background: var(--color-surface);
+  border-color: var(--color-accent);
+}
+
+.history-item-ticket {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-item-meta {
+  font-size: var(--scale-caption);
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+}
+
+.empty-note {
+  color: var(--color-ink-muted);
   font-size: var(--scale-caption);
   text-align: center;
+  padding: var(--space-4) 0;
+}
+
+/* ---- Settings (details/summary) ---- */
+.settings-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.settings-card summary {
+  padding: var(--space-4);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-card summary::after {
+  content: "＋";
+  color: var(--color-ink-muted);
+  font-weight: 400;
+}
+
+.settings-card[open] summary::after {
+  content: "－";
+}
+
+.settings-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-card form {
+  padding: 0 var(--space-4) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
+}
+
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+#logo-preview {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.theme-color-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.theme-color-row input[type="color"] {
+  width: 48px;
+  height: 44px;
+  padding: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+}
+
+.theme-color-text {
+  flex: 1;
+  font-family: var(--font-mono);
+}
+
+.saved-note {
+  color: var(--color-success);
+  font-size: var(--scale-caption);
+  font-weight: 600;
 }
