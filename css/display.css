@@ -21,12 +21,12 @@ html, body {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-3) var(--space-5);
   flex-shrink: 0;
 }
 
 #office-logo {
-  height: 40px;
+  height: 52px;
   width: auto;
   object-fit: contain;
 }
@@ -41,7 +41,7 @@ html, body {
   margin-left: auto;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 1.25rem;
+  font-size: 1.625rem;
   color: var(--color-ink-muted);
 }
 
@@ -59,9 +59,9 @@ html, body {
 
 .now-serving-label {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.24em;
   color: var(--color-ink-muted);
   margin-bottom: var(--space-3);
 }
@@ -93,7 +93,7 @@ html, body {
 .counter-label {
   margin-top: var(--space-4);
   font-family: var(--font-display);
-  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-size: clamp(1.75rem, 4.5vw, 2.75rem);
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--color-ink);
@@ -143,7 +143,7 @@ html, body {
 #last-called-list li {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 1.1rem;
+  font-size: 1.375rem;
   font-weight: 600;
   color: var(--color-ink-muted);
   background: var(--color-surface);
@@ -170,7 +170,7 @@ html, body {
 #scrolling-footer-text {
   display: inline-block;
   padding-left: 100%;
-  font-size: 1rem;
+  font-size: 1.25rem;
   color: var(--color-ink-muted);
   animation: scroll-footer 22s linear infinite;
 }
