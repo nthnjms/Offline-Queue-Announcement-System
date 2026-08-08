@@ -1,0 +1,105 @@
+/* ==========================================================================
+   index.css
+   The landing page — same design tokens as the rest of the app (see
+   base.css), kept deliberately simple: a title, two clear entry points,
+   and short setup instructions. Nothing on this page is part of the
+   actual queue workflow, so it stays out of the way once someone's
+   bookmarked Control Panel / Display directly.
+   ========================================================================== */
+
+body {
+  display: flex;
+  justify-content: center;
+}
+
+.landing {
+  max-width: 760px;
+  width: 100%;
+  padding: var(--space-6) var(--space-5);
+}
+
+.landing-header {
+  text-align: center;
+  margin-bottom: var(--space-5);
+}
+
+.landing-header h1 {
+  font-size: var(--scale-h1);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-2);
+}
+
+.landing-subtitle {
+  color: var(--color-ink-muted);
+  font-size: 1.125rem;
+}
+
+.landing-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+@media (max-width: 560px) {
+  .landing-links {
+    grid-template-columns: 1fr;
+  }
+}
+
+.landing-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-card);
+  color: var(--color-ink);
+  transition: transform var(--motion-fast), border-color var(--motion-fast);
+}
+
+.landing-card:hover,
+.landing-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--color-accent);
+}
+
+.landing-card-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.landing-card-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+
+.landing-card-desc {
+  color: var(--color-ink-muted);
+  font-size: 1rem;
+}
+
+.landing-instructions {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-5);
+}
+
+.landing-instructions h2 {
+  font-size: var(--scale-h2);
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+}
+
+.landing-instructions ol {
+  padding-left: 1.25em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
