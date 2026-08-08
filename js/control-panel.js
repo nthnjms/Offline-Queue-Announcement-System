@@ -143,15 +143,6 @@ function initControlPanel() {
     el.ticketInput.focus();
   }
 
-  function updateTicketHint() {
-    const value = normalizeTicket(el.ticketInput.value);
-    const show = value.length > 0 && !looksLikeValidTicket(value);
-    el.ticketHint.hidden = !show;
-    el.ticketHint.textContent = show
-      ? "Doesn't look like a typical ticket format (e.g. B015) — you can still call it."
-      : "";
-  }
-
   function handleCallSubmit(event) {
     event.preventDefault();
     const ticketNumber = normalizeTicket(el.ticketInput.value);
