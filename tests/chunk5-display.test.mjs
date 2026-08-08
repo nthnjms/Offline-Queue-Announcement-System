@@ -199,6 +199,23 @@ try {
 }
 check("Fullscreen button click doesn't throw when Fullscreen API is unavailable in jsdom", !fullscreenClickThrew);
 
+// ---------------------------------------------------------------------
+// PART H — audio unlock overlay (replaces the old silent priming trick)
+// ---------------------------------------------------------------------
+const audioOverlay = doc.getElementById("audio-unlock-overlay");
+check("Audio unlock overlay exists and starts visible", audioOverlay !== null && !audioOverlay.classList.contains("is-hidden"));
+
+let overlayPlayCalled = false;
+bellEl.play = () => {
+  overlayPlayCalled = true;
+  return Promise.resolve();
+};
+audioOverlay.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+await wait(20);
+check("Clicking the overlay attempts to play/unlock the bell", overlayPlayCalled);
+check("Clicking the overlay hides it", audioOverlay.classList.contains("is-hidden"));
+
+
 const failed = results.filter((r) => !r.pass);
 console.log(`\n${results.length - failed.length}/${results.length} checks passed.`);
 process.exit(failed.length > 0 ? 1 : 0);

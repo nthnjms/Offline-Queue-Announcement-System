@@ -71,17 +71,10 @@ check("Ticket field clears after a successful Call (ready for next ticket)", tic
 check("History list gains one entry", historyList.children.length === 1 && historyEmpty.hidden);
 
 // ---------------------------------------------------------------------
-// PART B — validation hint (soft, non-blocking)
+// PART B — the ticket-format warning UI was removed per user feedback;
+// confirm it's actually gone rather than just unused
 // ---------------------------------------------------------------------
-const ticketHint = doc.getElementById("ticket-hint");
-ticketInput.value = "zzzzzzz999";
-ticketInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
-check("Unusual ticket format shows a hint (but doesn't block)", ticketHint.hidden === false);
-
-ticketInput.value = "P003";
-ticketInput.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
-check("Standard ticket format (P003) clears the hint", ticketHint.hidden === true);
-ticketInput.value = "";
+check("Ticket format warning element no longer exists in the DOM", doc.getElementById("ticket-hint") === null);
 
 // ---------------------------------------------------------------------
 // PART C — history recall populates the form without auto-calling

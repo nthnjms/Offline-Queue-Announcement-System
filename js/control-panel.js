@@ -63,7 +63,6 @@ function initControlPanel() {
 
     callForm: document.getElementById("call-form"),
     ticketInput: document.getElementById("ticket-number"),
-    ticketHint: document.getElementById("ticket-hint"),
     counterSelect: document.getElementById("counter-select"),
     messageInput: document.getElementById("custom-message"),
     repeatButton: document.getElementById("repeat-button"),
@@ -139,7 +138,6 @@ function initControlPanel() {
     el.ticketInput.value = entry.ticketNumber;
     el.counterSelect.value = String(entry.counter);
     el.messageInput.value = entry.message || "";
-    updateTicketHint();
     el.ticketInput.focus();
   }
 
@@ -157,12 +155,10 @@ function initControlPanel() {
     });
     el.ticketInput.value = "";
     el.messageInput.value = "";
-    el.ticketHint.hidden = true;
     el.ticketInput.focus();
   }
 
   el.callForm.addEventListener("submit", handleCallSubmit);
-  el.ticketInput.addEventListener("input", updateTicketHint);
 
   // Enter-to-call from the ticket/counter fields (not the message
   // textarea, where Enter should insert a newline instead).
