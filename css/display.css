@@ -201,6 +201,36 @@ html, body {
   opacity: 1;
 }
 
+/* ---- Audio unlock overlay ----
+   Browsers block audio playback until the page has received a real
+   click/tap — and the Display page normally never gets clicked
+   directly (the operator interacts with the Control Panel, not the
+   TV). Without this, the first real announcement would silently fail
+   with no indication why. This overlay makes the one-time requirement
+   visible and self-explanatory instead of a silent background trick. */
+.audio-unlock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 21, 31, 0.55);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-weight: 600;
+  text-align: center;
+  padding: var(--space-5);
+  cursor: pointer;
+  transition: opacity var(--motion-base);
+}
+
+.audio-unlock-overlay.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* ---- Responsive: narrower / vertical displays ---- */
 @media (max-width: 640px) {
   .display-header {

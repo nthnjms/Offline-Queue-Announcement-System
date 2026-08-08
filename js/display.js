@@ -122,33 +122,62 @@ function initDisplay() {
     el.ticketNumber.classList.add("flash");
   }
 
+  // Bell rings immediately; the voice announcement waits a beat so it
+  // doesn't talk over the chime. Tweak ANNOUNCEMENT_DELAY_MS to taste.
+  const ANNOUNCEMENT_DELAY_MS = 700;
+  let pendingAnnouncementTimeout = null;
+
   function handleLiveAnnouncement(entry) {
     playBell();
     flashTicket();
-    announceTicket(entry);
+
+    if (pendingAnnouncementTimeout) clearTimeout(pendingAnnouncementTimeout);
+    pendingAnnouncementTimeout = setTimeout(() => {
+      pendingAnnouncementTimeout = null;
+      announceTicket(entry);
+    }, ANNOUNCEMENT_DELAY_MS);
   }
 
   onMessage("ticket-called", handleLiveAnnouncement);
   onMessage("ticket-repeat", handleLiveAnnouncement);
-  onMessage("display-cleared", () => clearSpeechQueue());
+  onMessage("display-cleared", () => {
+    // If the display gets cleared while a voice announcement is still
+    // waiting out its delay, cancel it — otherwise it would speak a
+    // ticket that's no longer even on screen.
+    if (pendingAnnouncementTimeout) {
+      clearTimeout(pendingAnnouncementTimeout);
+      pendingAnnouncementTimeout = null;
+    }
+    clearSpeechQueue();
+  });
 
   // Many browsers block audio until the page has received a user gesture.
-  // A public display often won't get one before its first real
-  // announcement, so "prime" playback silently on the first tap/click
-  // anywhere on the page (e.g. a projector's touch surface, or whoever
-  // sets the machine up walking over and clicking once).
-  function primeAudioOnce() {
+  // The Display page normally never gets clicked directly (the operator
+  // works from Control Panel, not the TV), so without this, the first
+  // real bell would silently fail with no indication why. This overlay
+  // makes the one-time requirement visible instead of a silent trick.
+  const audioOverlay = document.getElementById("audio-unlock-overlay");
+
+  function unlockAudio() {
     el.bell
       .play()
       ?.then(() => {
         el.bell.pause();
         el.bell.currentTime = 0;
+        audioOverlay.classList.add("is-hidden");
       })
       .catch(() => {
-        /* still blocked — will simply try again on the next real bell */
+        // Still blocked for some reason — leave the overlay up so the
+        // person can try tapping again.
       });
   }
-  document.addEventListener("click", primeAudioOnce, { once: true });
+  audioOverlay.addEventListener("click", unlockAudio);
+  audioOverlay.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      unlockAudio();
+    }
+  });
 
   startHeartbeat();
 

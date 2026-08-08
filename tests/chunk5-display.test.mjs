@@ -118,35 +118,55 @@ check(
 );
 
 // ---------------------------------------------------------------------
-// PART B — a LIVE 'ticket-called' event DOES trigger bell + flash + speech
+// PART B — a LIVE 'ticket-called' event: bell/flash are immediate,
+// the voice announcement follows after a short delay (doesn't talk
+// over the chime)
 // ---------------------------------------------------------------------
 controlComms.send("ticket-called", { ticketNumber: "A004", counter: 3, message: "" });
 await wait(30);
 
 check("Live ticket-called event updates the ticket number on screen", ticketNumberEl.textContent === "A004");
 check("Live ticket-called event updates the counter label", counterLabelEl.textContent === "PLEASE PROCEED TO COUNTER 3");
-check("Live ticket-called event rings the bell", bellPlayCount === 1);
-check("Live ticket-called event applies the flash animation class", ticketNumberEl.classList.contains("flash"));
+check("Bell rings immediately on a live call", bellPlayCount === 1);
+check("Flash animation applies immediately on a live call", ticketNumberEl.classList.contains("flash"));
 check(
-  "Live ticket-called event speaks the auto-generated phrase",
+  "Voice announcement has NOT spoken yet this soon after the bell (delay working)",
+  globalThis.speechSynthesis.spokenOrder.length === 0
+);
+
+await wait(720); // past the 700ms announcement delay
+check(
+  "Voice announcement speaks the auto-generated phrase after the delay",
   globalThis.speechSynthesis.spokenOrder.includes("Ticket A004, please proceed to Counter 3.")
 );
 
 // ---------------------------------------------------------------------
-// PART C — ticket-repeat also triggers bell + speech (re-announce)
+// PART C — ticket-repeat: same bell-immediate, speech-delayed behavior
 // ---------------------------------------------------------------------
 const spokenCountBefore = globalThis.speechSynthesis.spokenOrder.length;
 controlComms.send("ticket-repeat", { ticketNumber: "A004", counter: 3, message: "" });
 await wait(30);
-check("Repeat also rings the bell again", bellPlayCount === 2);
-check("Repeat speaks again", globalThis.speechSynthesis.spokenOrder.length === spokenCountBefore + 1);
+check("Repeat rings the bell immediately", bellPlayCount === 2);
+check("Repeat has not spoken yet this soon after the bell", globalThis.speechSynthesis.spokenOrder.length === spokenCountBefore);
+
+await wait(720);
+check("Repeat speaks after the delay", globalThis.speechSynthesis.spokenOrder.length === spokenCountBefore + 1);
 
 // ---------------------------------------------------------------------
-// PART D — display-cleared cancels any in-progress/queued speech
+// PART D — display-cleared while a delayed announcement is still
+// pending cancels it outright — it should never speak at all, not
+// just get cut off mid-sentence
 // ---------------------------------------------------------------------
+controlComms.send("ticket-called", { ticketNumber: "P009", counter: 1, message: "" });
+await wait(30); // well within the 700ms delay — the announcement is still pending
 controlComms.send("display-cleared", {});
-await wait(30);
-check("display-cleared broadcasts trigger a speech cancel", globalThis.speechSynthesis.spokenOrder.includes("__CANCELLED__"));
+await wait(720); // past when the P009 announcement would have fired, if not cancelled
+
+check(
+  "A pending (not-yet-spoken) announcement is cancelled by display-cleared and never speaks",
+  !globalThis.speechSynthesis.spokenOrder.includes("Ticket P009, please proceed to Counter 1.")
+);
+check("display-cleared also calls speechSynthesis.cancel() as a safety net", globalThis.speechSynthesis.spokenOrder.includes("__CANCELLED__"));
 
 // ---------------------------------------------------------------------
 // PART E — settings drive office identity, theme, and footer live
