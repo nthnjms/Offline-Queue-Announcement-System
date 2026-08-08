@@ -9,14 +9,7 @@
 </head>
 <body>
 
-  <!-- ==========================================================
-       SKELETON ONLY (Chunk 0).
-       Full NOW SERVING layout, ticket animation, bell sound,
-       last-5 list, clock, and scrolling footer get built in Chunk 5.
-       ========================================================== -->
-
   <header class="display-header">
-    <!-- Chunk 3: logo + office name populated from Settings -->
     <img id="office-logo" src="" alt="" hidden>
     <h2 id="office-name">Office Name</h2>
     <time id="clock"></time>
@@ -24,23 +17,21 @@
 
   <main id="now-serving">
     <h1 class="now-serving-label">NOW SERVING</h1>
-    <div id="ticket-number" class="ticket-number" aria-live="assertive">
-      <!-- Chunk 5: huge current ticket number renders here -->
-      —
-    </div>
-    <p id="counter-label" class="counter-label"><!-- e.g. "PLEASE PROCEED TO COUNTER 2" --></p>
+    <div id="ticket-number" class="ticket-number" aria-live="assertive">—</div>
+    <p id="counter-label" class="counter-label"></p>
   </main>
 
   <aside id="last-called" aria-label="Last called tickets">
     <h2>Last Called</h2>
-    <ol id="last-called-list">
-      <!-- Chunk 5: last 5 tickets render here -->
-    </ol>
+    <ol id="last-called-list"></ol>
+    <p id="last-called-empty" class="empty-note">No calls yet today.</p>
   </aside>
 
-  <footer id="scrolling-footer">
-    <!-- Chunk 3/5: optional scrolling message from Settings -->
+  <footer id="scrolling-footer" hidden>
+    <p id="scrolling-footer-text"></p>
   </footer>
+
+  <button id="fullscreen-button" class="fullscreen-button" aria-label="Toggle fullscreen" title="Toggle fullscreen">⛶</button>
 
   <audio id="bell-sound" src="assets/bell.mp3" preload="auto"></audio>
 

@@ -1,42 +1,69 @@
 /* ==========================================================================
-   display.css
-   Layout and components specific to the Public Display page (TV/projector).
-   Built out in Chunk 5. Only structural/reset rules go here for now.
+   display.css — CHUNK 5
 
-   Design note carried into Chunk 5: the ticket number is the signature
-   element of this whole app — full-bleed, tabular-mono digits, with a
-   subtle "ticket stub" motif (perforated edge / underline tick) rather
-   than a generic dashboard number. Everything else on this screen stays
-   quiet so that element reads instantly from across a room.
+   Signature element: the ticket number. It's rendered like a torn ticket
+   stub — tabular-mono digits, a heavy underline "tear" rule beneath it —
+   rather than a generic dashboard stat. When a new ticket is called, it
+   flashes once and settles; everything else on the screen (clock, last-
+   called list, footer) stays quiet so the one number that matters is
+   unmistakable from across a waiting room.
    ========================================================================== */
 
 html, body {
   height: 100%;
   overflow: hidden; /* this page never scrolls — it's a kiosk display */
+  display: flex;
+  flex-direction: column;
 }
 
+/* ---- Header ---- */
 .display-header {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  flex-shrink: 0;
+}
+
+#office-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+#office-name {
+  font-size: var(--scale-h2);
+  font-weight: 600;
+  color: var(--color-ink);
 }
 
 #clock {
   margin-left: auto;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+  font-size: 1.25rem;
+  color: var(--color-ink-muted);
 }
 
+/* ---- Now Serving (the hero) ---- */
 #now-serving {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  min-height: 0;
 }
 
 .now-serving-label {
   font-family: var(--font-display);
-  letter-spacing: 0.08em;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
   color: var(--color-ink-muted);
+  margin-bottom: var(--space-3);
 }
 
 .ticket-number {
@@ -46,13 +73,141 @@ html, body {
   font-weight: 700;
   color: var(--color-accent);
   line-height: 1;
+  letter-spacing: 0.02em;
+  position: relative;
+  padding-bottom: clamp(0.5rem, 2vw, 1.25rem);
 }
 
+/* The "torn ticket stub" underline — a thick rule with a dashed edge,
+   like the tear-line on a real numbered queue ticket. */
+.ticket-number::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 0;
+  border-bottom: 4px dashed var(--color-accent);
+  opacity: 0.35;
+}
+
+.counter-label {
+  margin-top: var(--space-4);
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-ink);
+}
+
+/* Flash animation on a new call — one firm pulse, not a strobe. */
+.ticket-number.flash {
+  animation: ticket-flash 900ms ease-out;
+}
+
+@keyframes ticket-flash {
+  0% {
+    transform: scale(1.06);
+    color: var(--color-ink);
+  }
+  100% {
+    transform: scale(1);
+    color: var(--color-accent);
+  }
+}
+
+/* ---- Last Called ---- */
 #last-called {
-  padding: var(--space-4) var(--space-5);
+  flex-shrink: 0;
+  padding: 0 var(--space-5) var(--space-3);
 }
 
+#last-called h2 {
+  font-size: var(--scale-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-muted);
+  margin-bottom: var(--space-3);
+  text-align: center;
+}
+
+#last-called-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+#last-called-list li {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-ink-muted);
+  background: var(--color-surface);
+  border-radius: var(--radius-control);
+  padding: var(--space-2) var(--space-3);
+}
+
+.empty-note {
+  text-align: center;
+  color: var(--color-ink-muted);
+  font-size: var(--scale-caption);
+}
+
+/* ---- Scrolling footer ---- */
 #scrolling-footer {
-  padding: var(--space-2) 0;
+  flex-shrink: 0;
+  overflow: hidden;
+  white-space: nowrap;
   border-top: 1px solid var(--color-border);
+  padding: var(--space-2) 0;
+  background: var(--color-surface);
+}
+
+#scrolling-footer-text {
+  display: inline-block;
+  padding-left: 100%;
+  font-size: 1rem;
+  color: var(--color-ink-muted);
+  animation: scroll-footer 22s linear infinite;
+}
+
+@keyframes scroll-footer {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+/* ---- Fullscreen toggle ---- */
+.fullscreen-button {
+  position: fixed;
+  bottom: var(--space-3);
+  right: var(--space-3);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-ink-muted);
+  font-size: 1.1rem;
+  opacity: 0.35;
+  transition: opacity var(--motion-fast);
+}
+
+.fullscreen-button:hover,
+.fullscreen-button:focus-visible {
+  opacity: 1;
+}
+
+/* ---- Responsive: narrower / vertical displays ---- */
+@media (max-width: 640px) {
+  .display-header {
+    flex-wrap: wrap;
+  }
+  #clock {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
 }
