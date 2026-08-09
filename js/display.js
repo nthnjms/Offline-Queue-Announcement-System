@@ -16,7 +16,7 @@
    Depends on: comms.js, state.js, settings.js, speech.js.
    ========================================================================== */
 
-import { onMessage, startHeartbeat } from "./comms.js";
+import { onMessage, startHeartbeat, getNetworkConfig, setNetworkConfig, onTransportStatusChange } from "./comms.js";
 import { subscribe as subscribeState } from "./state.js";
 import { subscribe as subscribeSettings, applyTheme } from "./settings.js";
 import { announceTicket, clearQueue as clearSpeechQueue } from "./speech.js";
@@ -34,6 +34,13 @@ function initDisplay() {
     footerText: document.getElementById("scrolling-footer-text"),
     fullscreenButton: document.getElementById("fullscreen-button"),
     bell: document.getElementById("bell-sound"),
+    networkSyncButton: document.getElementById("network-sync-button"),
+    networkSyncPanel: document.getElementById("network-sync-panel"),
+    networkSyncForm: document.getElementById("network-sync-panel-form"),
+    networkSyncEnabled: document.getElementById("network-sync-panel-enabled"),
+    networkSyncUrl: document.getElementById("network-sync-panel-url"),
+    networkSyncStatus: document.getElementById("network-sync-panel-status"),
+    networkSyncClose: document.getElementById("network-sync-panel-close"),
   };
 
   // --- Clock -----------------------------------------------------------------
@@ -208,6 +215,47 @@ function initDisplay() {
       });
     } else {
       document.exitFullscreen?.();
+    }
+  });
+
+  // --- Network Sync (optional, multi-computer) --------------------------
+  // Deliberately minimal here — full Settings (office name, logo, theme,
+  // etc.) only ever lives in Control Panel. This is just enough for
+  // someone setting up this specific machine to point it at the relay
+  // server; see comms.js's file header for why this can't be synced.
+
+  function renderNetworkSyncPanel(config) {
+    el.networkSyncEnabled.checked = config.enabled;
+    el.networkSyncUrl.value = config.serverUrl;
+  }
+  renderNetworkSyncPanel(getNetworkConfig());
+
+  onTransportStatusChange((isReady) => {
+    const config = getNetworkConfig();
+    if (!config.enabled) {
+      el.networkSyncStatus.textContent = "Off — using this computer only.";
+      return;
+    }
+    el.networkSyncStatus.textContent = isReady ? "Connected." : "Not connected — retrying…";
+  });
+
+  el.networkSyncButton.addEventListener("click", () => {
+    el.networkSyncPanel.hidden = !el.networkSyncPanel.hidden;
+  });
+  el.networkSyncClose.addEventListener("click", () => {
+    el.networkSyncPanel.hidden = true;
+  });
+
+  el.networkSyncForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const requestedEnabled = el.networkSyncEnabled.checked; // capture BEFORE render resets it
+    const applied = setNetworkConfig({
+      enabled: requestedEnabled,
+      serverUrl: el.networkSyncUrl.value,
+    });
+    renderNetworkSyncPanel(applied);
+    if (requestedEnabled && !applied.enabled) {
+      el.networkSyncStatus.textContent = "Address should start with ws:// or wss://";
     }
   });
 }

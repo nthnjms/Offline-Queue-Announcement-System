@@ -201,6 +201,113 @@ html, body {
   opacity: 1;
 }
 
+/* ---- Network Sync (Display side) ----
+   Mirrors the fullscreen button's placement/subtlety — bottom-left
+   instead of bottom-right, so both low-emphasis controls sit
+   symmetrically without competing with the ticket number for attention. */
+.network-sync-button {
+  position: fixed;
+  bottom: var(--space-3);
+  left: var(--space-3);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-ink-muted);
+  font-size: 1.1rem;
+  opacity: 0.35;
+  transition: opacity var(--motion-fast);
+  z-index: 50;
+}
+
+.network-sync-button:hover,
+.network-sync-button:focus-visible {
+  opacity: 1;
+}
+
+.network-sync-panel {
+  position: fixed;
+  bottom: calc(var(--space-3) + 48px);
+  left: var(--space-3);
+  z-index: 60;
+  width: min(320px, calc(100vw - 2 * var(--space-3)));
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4);
+}
+
+.network-sync-panel-explainer {
+  font-size: 0.875rem;
+  color: var(--color-ink-muted);
+  line-height: 1.5;
+  margin-bottom: var(--space-3);
+}
+
+.network-sync-panel label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink-muted);
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+.network-sync-panel .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 500;
+  color: var(--color-ink);
+  margin: 0 0 var(--space-2);
+  cursor: pointer;
+}
+
+.network-sync-panel .checkbox-label input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-accent);
+}
+
+.network-sync-panel input[type="text"] {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+}
+
+.network-sync-panel-status {
+  font-size: 0.8125rem;
+  color: var(--color-ink-muted);
+  margin-top: var(--space-3);
+}
+
+.network-sync-panel-buttons {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.network-sync-panel-buttons button {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border);
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.network-sync-panel-buttons button[type="submit"] {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  border-color: transparent;
+  flex: 1;
+}
+
 /* ---- Audio unlock overlay ----
    Browsers block audio playback until the page has received a real
    click/tap — and the Display page normally never gets clicked

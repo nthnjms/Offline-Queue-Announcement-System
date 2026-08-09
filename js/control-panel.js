@@ -8,7 +8,7 @@
    Depends on: comms.js, state.js, settings.js.
    ========================================================================== */
 
-import { onHeartbeat } from "./comms.js";
+import { onHeartbeat, getNetworkConfig, setNetworkConfig, onTransportStatusChange } from "./comms.js";
 import { getState, subscribe as subscribeState, callTicket, repeatCurrent, clearDisplay } from "./state.js";
 import {
   getSettings,
@@ -90,6 +90,11 @@ function initControlPanel() {
     exportSettingsButton: document.getElementById("export-settings-button"),
     importSettingsButton: document.getElementById("import-settings-button"),
     importSettingsFile: document.getElementById("import-settings-file"),
+
+    networkSyncForm: document.getElementById("network-sync-form"),
+    networkSyncEnabled: document.getElementById("network-sync-enabled"),
+    networkSyncUrl: document.getElementById("network-sync-url"),
+    networkSyncStatus: document.getElementById("network-sync-status"),
   };
 
   // Holds the pending (not-yet-saved) logo, so switching a file doesn't
@@ -193,6 +198,43 @@ function initControlPanel() {
     el.connectionStatus.textContent = connected ? "Display: Connected" : "Display: Not detected";
     el.connectionStatus.classList.toggle("is-connected", connected);
     el.connectionStatus.classList.toggle("is-disconnected", !connected);
+  });
+
+  // --- Network Sync (optional, multi-computer) --------------------------
+
+  function renderNetworkSyncForm(config) {
+    el.networkSyncEnabled.checked = config.enabled;
+    el.networkSyncUrl.value = config.serverUrl;
+  }
+  renderNetworkSyncForm(getNetworkConfig());
+
+  onTransportStatusChange((isReady) => {
+    const config = getNetworkConfig();
+    if (!config.enabled) {
+      el.networkSyncStatus.textContent = "Network sync is off — using this computer only.";
+      el.networkSyncStatus.classList.remove("is-connected", "is-disconnected");
+      return;
+    }
+    el.networkSyncStatus.textContent = isReady
+      ? `Connected to ${config.serverUrl}`
+      : `Not connected to ${config.serverUrl} — retrying…`;
+    el.networkSyncStatus.classList.toggle("is-connected", isReady);
+    el.networkSyncStatus.classList.toggle("is-disconnected", !isReady);
+  });
+
+  el.networkSyncForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const requestedEnabled = el.networkSyncEnabled.checked; // capture BEFORE render resets it
+    const applied = setNetworkConfig({
+      enabled: requestedEnabled,
+      serverUrl: el.networkSyncUrl.value,
+    });
+    renderNetworkSyncForm(applied);
+    if (requestedEnabled && !applied.enabled) {
+      el.networkSyncStatus.textContent =
+        "That doesn't look like a valid server address (should start with ws:// or wss://).";
+      el.networkSyncStatus.classList.remove("is-connected", "is-disconnected");
+    }
   });
 
   // --- Settings form ------------------------------------------------------

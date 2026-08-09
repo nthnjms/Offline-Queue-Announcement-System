@@ -35,7 +35,7 @@
             name="ticketNumber"
             type="text"
             class="ticket-input"
-            placeholder="0000"
+            placeholder="B015"
             autocomplete="off"
             spellcheck="false"
             maxlength="12"
@@ -128,6 +128,40 @@
           <button type="button" id="export-settings-button" class="btn btn-text">Export…</button>
           <button type="button" id="import-settings-button" class="btn btn-text">Import…</button>
           <input type="file" id="import-settings-file" accept="application/json" hidden>
+        </div>
+      </form>
+    </details>
+
+    <details class="card settings-card" id="network-sync-details">
+      <summary>Network Sync <span class="field-optional">(advanced, multi-computer)</span></summary>
+
+      <form id="network-sync-form">
+        <p class="network-sync-explainer">
+          By default this app works entirely on one computer. To run Control
+          Panel and Display on <strong>separate</strong> computers on your
+          local network, run the included relay server on one computer
+          (<code>node server/relay-server.js</code>), then enter its address
+          below on <strong>both</strong> machines. This setting is per-machine
+          — it won't sync itself, since a disconnected machine has no way to
+          receive that broadcast.
+        </p>
+
+        <div class="field">
+          <label class="checkbox-label">
+            <input id="network-sync-enabled" type="checkbox">
+            Enable network sync
+          </label>
+        </div>
+
+        <div class="field">
+          <label for="network-sync-url">Relay server address</label>
+          <input id="network-sync-url" type="text" placeholder="ws://192.168.1.50:8080" autocomplete="off" spellcheck="false">
+        </div>
+
+        <p id="network-sync-status" class="network-sync-status"></p>
+
+        <div class="button-row">
+          <button type="submit" class="btn btn-primary">Save &amp; Connect</button>
         </div>
       </form>
     </details>

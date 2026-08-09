@@ -23,7 +23,7 @@
 
    ========================================================================== */
 
-import { send, onMessage } from "./comms.js";
+import { send, onMessage, onTransportReady, getNetworkConfig } from "./comms.js";
 
 const STORAGE_KEY = "queue-system:state";
 const MAX_HISTORY = 5;
@@ -175,6 +175,34 @@ onMessage("display-cleared", () => {
 // (Chunk 5) will listen for 'ticket-repeat' directly via comms.js to
 // know when to re-trigger the bell/speech without re-running the
 // call-in animation.
+
+// --- Cross-MACHINE sync (Network Sync mode only) ---------------------------
+// localStorage recovery-on-load (see file header) only works within one
+// computer's own browser storage — it can't help a SEPARATE machine that
+// has never seen this ticket. When network sync is on, a freshly-connected
+// (or reconnected) machine asks "what's the current state?" once, and
+// whichever other machine has it (normally Control Panel) answers. This
+// never fires in local/offline mode — nothing ever sends 'request-sync'
+// unless network sync is explicitly turned on, so single-computer
+// behavior is completely unaffected by this.
+
+onMessage("request-sync", () => {
+  send("state-sync", getState());
+});
+
+onMessage("state-sync", (payload) => {
+  if (!payload || typeof payload !== "object") return;
+  state = {
+    current: payload.current && typeof payload.current === "object" ? payload.current : null,
+    history: Array.isArray(payload.history) ? payload.history.slice(0, MAX_HISTORY) : [],
+  };
+  persist();
+  notify();
+});
+
+onTransportReady(() => {
+  if (getNetworkConfig().enabled) send("request-sync", {});
+});
 
 if (typeof window !== "undefined") {
   window.__queueState = { getState, subscribe, callTicket, repeatCurrent, clearDisplay };

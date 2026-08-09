@@ -31,7 +31,7 @@
    office name/logo/theme/footer).
    ========================================================================== */
 
-import { send, onMessage } from "./comms.js";
+import { send, onMessage, onTransportReady, getNetworkConfig } from "./comms.js";
 
 const STORAGE_KEY = "queue-system:settings";
 
@@ -252,10 +252,30 @@ export function importSettingsFromFile(file) {
 // --- Cross-tab sync --------------------------------------------------------
 onMessage("settings-updated", (incoming) => {
   settings = sanitize(incoming);
+  persist();
   notify();
-  // Not re-persisting here: the sending tab already wrote to the shared
-  // localStorage (same origin, same physical storage) — re-writing here
-  // would just be a redundant, identical write.
+  // Always persisting (not just in same-machine mode): on a networked
+  // second machine, this browser's localStorage is entirely separate
+  // from the sender's, so skipping this would silently lose the update
+  // on next reload. The extra write is harmless on the same machine too.
+});
+
+// --- Cross-MACHINE sync (Network Sync mode only) ---------------------------
+// Same pattern as state.js — see its equivalent section for the full
+// explanation. Never fires in local/offline mode.
+
+onMessage("request-sync", () => {
+  send("settings-sync", settings);
+});
+
+onMessage("settings-sync", (payload) => {
+  settings = sanitize(payload);
+  persist();
+  notify();
+});
+
+onTransportReady(() => {
+  if (getNetworkConfig().enabled) send("request-sync", {});
 });
 
 if (typeof window !== "undefined") {

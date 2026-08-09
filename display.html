@@ -33,6 +33,28 @@
 
   <button id="fullscreen-button" class="fullscreen-button" aria-label="Toggle fullscreen" title="Toggle fullscreen">⛶</button>
 
+  <button id="network-sync-button" class="network-sync-button" aria-label="Network sync settings" title="Network sync settings">⚙</button>
+
+  <div id="network-sync-panel" class="network-sync-panel" hidden>
+    <form id="network-sync-panel-form">
+      <p class="network-sync-panel-explainer">
+        Set this once per machine to connect to a Control Panel running on
+        a different computer. Leave off for single-computer use.
+      </p>
+      <label class="checkbox-label">
+        <input id="network-sync-panel-enabled" type="checkbox">
+        Enable network sync
+      </label>
+      <label for="network-sync-panel-url">Relay server address</label>
+      <input id="network-sync-panel-url" type="text" placeholder="ws://192.168.1.50:8080" autocomplete="off" spellcheck="false">
+      <p id="network-sync-panel-status" class="network-sync-panel-status"></p>
+      <div class="network-sync-panel-buttons">
+        <button type="submit">Save &amp; Connect</button>
+        <button type="button" id="network-sync-panel-close">Close</button>
+      </div>
+    </form>
+  </div>
+
   <div id="audio-unlock-overlay" class="audio-unlock-overlay" role="button" tabindex="0">
     <p>Tap anywhere to enable announcement sound</p>
   </div>
