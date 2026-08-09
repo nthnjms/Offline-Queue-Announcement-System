@@ -61,7 +61,7 @@
 
 .call-card {
   grid-column: 1;
-  grid-row: 1 / span 2;
+  grid-row: 1 / span 3;
   padding: var(--space-4);
 }
 
@@ -71,9 +71,21 @@
   padding: var(--space-4);
 }
 
-.settings-card {
+/* Layout placement lives on the IDs, not on the shared .settings-card
+   class below — that class is reused for its VISUAL look (collapsible
+   card styling) by both #settings-details and #network-sync-details.
+   Putting grid-column/grid-row on the shared class would pin both
+   elements to the identical grid cell, causing them to overlap with
+   one hidden behind the other — which is exactly the bug this
+   structure avoids. */
+#settings-details {
   grid-column: 2;
   grid-row: 2;
+}
+
+#network-sync-details {
+  grid-column: 2;
+  grid-row: 3;
 }
 
 @media (max-width: 760px) {
@@ -82,7 +94,8 @@
   }
   .call-card,
   .history-card,
-  .settings-card {
+  #settings-details,
+  #network-sync-details {
     grid-column: 1;
     grid-row: auto;
   }

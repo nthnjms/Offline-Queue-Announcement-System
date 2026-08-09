@@ -72,6 +72,12 @@ to the console either way).
 - `network-sync-ui.test.mjs` — jsdom test for both the Control Panel's
   Network Sync form and Display's minimal gear-icon panel: toggling,
   saving, invalid-address rejection, and status text. Needs jsdom.
+- `network-sync-transport-toggle.test.mjs` — regression test for a real
+  bug: a page that starts in network mode never initializes the local
+  BroadcastChannel transport at all (only network mode did), so
+  switching back to single-computer later silently sent nothing —
+  neither transport was actually active. Verifies switching back
+  actually works, including after repeated on/off toggles.
 
 ## A known flake (not a bug)
 

@@ -161,9 +161,17 @@ export function setNetworkConfig({ enabled, serverUrl }) {
   if (config.enabled) {
     connectWebSocket(config.serverUrl);
   } else {
-    // Local mode was already initialized at module load (see init() at
-    // the bottom of this file) — BroadcastChannel/fallback is still
-    // sitting there ready to go, so just mark ready again.
+    // Local transport (BroadcastChannel/fallback) is only ever set up
+    // once, at module load — and ONLY if network sync was off at that
+    // time (see init() at the bottom of this file). If this page
+    // started in network mode, local transport was never initialized
+    // at all, so switching back here needs to actually set it up now —
+    // not just assume it's already sitting there ready. Skipping this
+    // was the bug that made "switch back to single-computer" silently
+    // stop sending anything.
+    if (!channel && !usingFallback) {
+      initLocalTransport();
+    }
     setTransportStatus(true);
   }
 
