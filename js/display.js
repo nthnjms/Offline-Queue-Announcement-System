@@ -26,6 +26,8 @@ function initDisplay() {
     officeLogo: document.getElementById("office-logo"),
     officeName: document.getElementById("office-name"),
     clock: document.getElementById("clock"),
+    clockDate: document.getElementById("clock-date"),
+    clockTime: document.getElementById("clock-time"),
     ticketNumber: document.getElementById("ticket-number"),
     counterLabel: document.getElementById("counter-label"),
     lastCalledList: document.getElementById("last-called-list"),
@@ -47,7 +49,13 @@ function initDisplay() {
 
   function updateClock() {
     const now = new Date();
-    el.clock.textContent = now.toLocaleTimeString([], {
+    el.clockDate.textContent = now.toLocaleDateString([], {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    el.clockTime.textContent = now.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
@@ -166,17 +174,37 @@ function initDisplay() {
   const audioOverlay = document.getElementById("audio-unlock-overlay");
 
   function unlockAudio() {
-    el.bell
-      .play()
-      ?.then(() => {
-        el.bell.pause();
-        el.bell.currentTime = 0;
-        audioOverlay.classList.add("is-hidden");
-      })
-      .catch(() => {
-        // Still blocked for some reason — leave the overlay up so the
-        // person can try tapping again.
-      });
+    // Hide immediately, regardless of what happens next. The tap itself
+    // is what satisfies the browser's "user gesture" requirement — if
+    // play() still fails for some OTHER reason (e.g. bell.mp3 missing
+    // or slow to load), that's a separate problem, and leaving the
+    // whole screen blocked behind an unresponsive-looking overlay is
+    // worse than letting it through. Previously this only hid inside
+    // the success branch, so any rejection — or even a synchronous
+    // throw, which wasn't caught at all — left it stuck forever with
+    // no visible feedback, which looks exactly like "the tap doesn't
+    // work" even when it did.
+    audioOverlay.classList.add("is-hidden");
+
+    try {
+      const playResult = el.bell.play();
+      if (playResult && typeof playResult.then === "function") {
+        playResult
+          .then(() => {
+            el.bell.pause();
+            el.bell.currentTime = 0;
+          })
+          .catch((err) => {
+            console.warn(
+              "[display.js] Audio priming didn't fully succeed (the tap still registered) — " +
+                "if the bell stays silent on the next real call, check that assets/bell.mp3 exists:",
+              err
+            );
+          });
+      }
+    } catch (err) {
+      console.warn("[display.js] Audio priming attempt threw:", err);
+    }
   }
   audioOverlay.addEventListener("click", unlockAudio);
   audioOverlay.addEventListener("keydown", (event) => {

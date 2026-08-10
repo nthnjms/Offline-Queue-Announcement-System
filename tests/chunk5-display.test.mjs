@@ -95,6 +95,8 @@ const officeLogoEl = doc.getElementById("office-logo");
 const footerEl = doc.getElementById("scrolling-footer");
 const footerTextEl = doc.getElementById("scrolling-footer-text");
 const clockEl = doc.getElementById("clock");
+const clockDateEl = doc.getElementById("clock-date");
+const clockTimeEl = doc.getElementById("clock-time");
 
 // Spy on bell playback (jsdom's real HTMLMediaElement.play() isn't implemented)
 let bellPlayCount = 0;
@@ -205,7 +207,13 @@ check("Clearing the logo hides the logo image", officeLogoEl.hidden === true);
 // ---------------------------------------------------------------------
 // PART F — clock renders something plausible
 // ---------------------------------------------------------------------
-check("Clock renders a non-empty time string on load", clockEl.textContent.length > 0);
+check("Clock renders a non-empty time string on load", clockTimeEl.textContent.length > 0);
+check(
+  "Clock also renders the date and day of week",
+  clockDateEl.textContent.length > 0 &&
+    /monday|tuesday|wednesday|thursday|friday|saturday|sunday/i.test(clockDateEl.textContent)
+);
+check("Time element's machine-readable dateTime attribute is set", clockEl.dateTime.length > 0);
 
 // ---------------------------------------------------------------------
 // PART G — graceful no-ops for unsupported browser APIs (no throw)
@@ -225,6 +233,7 @@ check("Fullscreen button click doesn't throw when Fullscreen API is unavailable 
 const audioOverlay = doc.getElementById("audio-unlock-overlay");
 check("Audio unlock overlay exists and starts visible", audioOverlay !== null && !audioOverlay.classList.contains("is-hidden"));
 
+// --- Success path ---
 let overlayPlayCalled = false;
 bellEl.play = () => {
   overlayPlayCalled = true;
@@ -233,8 +242,36 @@ bellEl.play = () => {
 audioOverlay.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
 await wait(20);
 check("Clicking the overlay attempts to play/unlock the bell", overlayPlayCalled);
-check("Clicking the overlay hides it", audioOverlay.classList.contains("is-hidden"));
+check("Clicking the overlay hides it on success", audioOverlay.classList.contains("is-hidden"));
 
+// --- Regression test for the Group C fix: play() REJECTS ---
+// Previously the overlay only hid inside the success branch, so a
+// rejected promise left it stuck forever with no visible feedback —
+// which looks exactly like "the tap doesn't work" even though it did.
+audioOverlay.classList.remove("is-hidden"); // reset, simulating a fresh page load
+bellEl.play = () => Promise.reject(new Error("NotAllowedError (simulated)"));
+audioOverlay.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+await wait(20);
+check(
+  "REGRESSION: overlay still hides even when play() rejects (was previously stuck forever)",
+  audioOverlay.classList.contains("is-hidden")
+);
+
+// --- Regression test: play() throws SYNCHRONOUSLY (not even a rejected
+// promise — the old code didn't even catch this case at all) ---
+audioOverlay.classList.remove("is-hidden");
+bellEl.play = () => {
+  throw new Error("synchronous failure (simulated)");
+};
+let syncThrowEscaped = false;
+try {
+  audioOverlay.dispatchEvent(new dom.window.Event("click", { bubbles: true }));
+} catch (err) {
+  syncThrowEscaped = true;
+}
+await wait(20);
+check("REGRESSION: a synchronous throw from play() doesn't escape the handler", !syncThrowEscaped);
+check("REGRESSION: overlay still hides even when play() throws synchronously", audioOverlay.classList.contains("is-hidden"));
 
 const failed = results.filter((r) => !r.pass);
 console.log(`\n${results.length - failed.length}/${results.length} checks passed.`);
